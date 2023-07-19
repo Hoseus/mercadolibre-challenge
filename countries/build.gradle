@@ -1,0 +1,76 @@
+import io.swagger.v3.plugins.gradle.tasks.ResolveTask
+
+plugins {
+    id 'java'
+    id 'io.quarkus'
+    id 'io.swagger.core.v3.swagger-gradle-plugin' version '2.2.15'
+    id 'jacoco'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+ext {
+
+}
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-resteasy-reactive-jackson'
+    implementation 'io.quarkus:quarkus-rest-client-reactive'
+    implementation 'io.quarkus:quarkus-resteasy-reactive'
+    implementation 'io.quarkus:quarkus-rest-client-reactive-jackson'
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-smallrye-health'
+    implementation 'io.quarkus:quarkus-opentelemetry-exporter-otlp'
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+}
+
+group 'com.mercadolibre'
+version '0.1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+test {
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+    jacoco {
+        classDumpDir = layout.buildDirectory.dir('jacoco/classpathdumps').get().asFile
+    }
+    finalizedBy jacocoTestReport
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+jacoco {
+    toolVersion = "0.8.9"
+}
+
+jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(true)
+    }
+}
+
+resolve {
+    outputFileName = 'openapi'
+    outputFormat = ResolveTask.Format.YAML
+    prettyPrint = true
+    classpath = sourceSets.main.runtimeClasspath
+    resourcePackages = ["com.mercadolibre"]
+    outputDir = file('apis-docs')
+}

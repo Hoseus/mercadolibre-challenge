@@ -1,0 +1,11 @@
+quarkus:
+  devservices:
+    enabled: false
+  application:
+    name: "countries"
+  opentelemetry:
+    enabled: true
+    tracer:
+      exporter:
+        otlp:
+          enabled: false
