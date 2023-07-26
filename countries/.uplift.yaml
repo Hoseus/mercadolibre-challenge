@@ -1,5 +1,5 @@
 bumps:
   - file: build.gradle
     regex:
-      - pattern: 'version = "$VERSION"'
+      - pattern: "version '$VERSION'"
         semver: true

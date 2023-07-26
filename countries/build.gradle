@@ -1,9 +1,7 @@
-import io.swagger.v3.plugins.gradle.tasks.ResolveTask
-
 plugins {
     id 'java'
     id 'io.quarkus'
-    id 'io.swagger.core.v3.swagger-gradle-plugin' version '2.2.15'
+    id 'io.freefair.lombok' version '8.1.0'
     id 'jacoco'
 }
 
@@ -18,15 +16,27 @@ ext {
 
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-config-yaml'
     implementation 'io.quarkus:quarkus-resteasy-reactive-jackson'
     implementation 'io.quarkus:quarkus-rest-client-reactive'
     implementation 'io.quarkus:quarkus-resteasy-reactive'
     implementation 'io.quarkus:quarkus-rest-client-reactive-jackson'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-smallrye-health'
-    implementation 'io.quarkus:quarkus-opentelemetry-exporter-otlp'
+    implementation 'io.quarkus:quarkus-opentelemetry'
+    implementation 'io.quarkus:quarkus-smallrye-openapi'
+
+    annotationProcessor("io.quarkus:quarkus-panache-common")
+    implementation 'io.quarkus:quarkus-hibernate-reactive-panache'
+    implementation 'io.quarkus:quarkus-reactive-pg-client'
+    implementation 'io.quarkus:quarkus-smallrye-reactive-messaging-kafka'
+    implementation 'io.quarkus:quarkus-redis-cache'
+
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'io.quarkus:quarkus-junit5-mockito'
+    testImplementation 'io.smallrye.reactive:smallrye-reactive-messaging-in-memory'
+    //testImplementation 'io.quarkus:quarkus-test-kafka-companion'
 }
 
 group 'com.mercadolibre'
@@ -64,13 +74,4 @@ jacocoTestReport {
         csv.required.set(false)
         html.required.set(true)
     }
-}
-
-resolve {
-    outputFileName = 'openapi'
-    outputFormat = ResolveTask.Format.YAML
-    prettyPrint = true
-    classpath = sourceSets.main.runtimeClasspath
-    resourcePackages = ["com.mercadolibre"]
-    outputDir = file('apis-docs')
 }
