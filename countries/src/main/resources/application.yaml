@@ -3,9 +3,41 @@ quarkus:
     enabled: false
   application:
     name: "countries"
-  opentelemetry:
-    enabled: true
-    tracer:
-      exporter:
-        otlp:
-          enabled: false
+  log:
+    console:
+      format: "[%-5p] [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%X{traceId}] [%t] [%c] [%X{logName}] - %s%n%e%n"
+  rest-client:
+    ip-api:
+      url: 'http://api.ipapi.com/api'
+    country-api:
+      url: 'https://countryapi.io/api'
+    exchangerate-api:
+      url: 'https://v6.exchangerate-api.com/v6/003cb78ca03fe13a22beb845'
+  otel:
+    traces:
+      exporter: none
+  datasource:
+    db-kind: postgresql
+    username: postgres
+    password: password
+    reactive:
+      url: vertx-reactive:postgresql://localhost:5432/country
+  redis:
+    hosts: redis://localhost:6379
+
+kafka:
+  bootstrap:
+    servers: localhost:9092
+mp:
+  messaging:
+    outgoing:
+      country-stats:
+        connector: smallrye-kafka
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+
+countries:
+  ip-api:
+    api-key: "f9a44f7db524059d9e4e741eb97cbef6"
+  country-api:
+    api-key: "private"
