@@ -1,0 +1,32 @@
+quarkus:
+  devservices:
+    enabled: false
+  application:
+    name: "stats"
+  log:
+    console:
+      format: "[%-5p] [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%X{traceId}] [%t] [%c] [%X{logName}] - %s%n%e%n"
+  otel:
+    traces:
+      exporter: none
+  datasource:
+    db-kind: postgresql
+    username: postgres
+    password: password
+    reactive:
+      url: vertx-reactive:postgresql://localhost:5432/country
+
+kafka:
+  bootstrap:
+    servers: localhost:9092
+mp:
+  messaging:
+    incoming:
+      country-stats:
+        connector: smallrye-kafka
+        value:
+          deserializer: com.mercadolibre.stats.consumer.StatsDeserializer
+
+stats:
+  cron:
+    time: 5m
