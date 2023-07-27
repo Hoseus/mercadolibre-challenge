@@ -2,10 +2,9 @@ package com.mercadolibre.countries.service;
 
 import com.mercadolibre.countries.controller.dto.CountryDto;
 import com.mercadolibre.countries.controller.dto.Currency;
-import com.mercadolibre.countries.exception.NotFoundException;
 import com.mercadolibre.countries.producer.StatsMessage;
 import com.mercadolibre.countries.producer.StatsProducer;
-import com.mercadolibre.countries.service.countryapi.CountryApiClient;
+import com.mercadolibre.countries.service.countryapi.CountryApiService;
 import com.mercadolibre.countries.service.countryapi.CountryData;
 import com.mercadolibre.countries.service.exchangerateapi.ExchangeRateApiClient;
 import com.mercadolibre.countries.service.exchangerateapi.ExchangeRateApiDto;
@@ -30,18 +29,18 @@ import java.util.stream.Collectors;
 public class CountryService {
 	private static final BigDecimal ONE = BigDecimal.ONE.setScale(4, RoundingMode.HALF_UP);
 	private final IpApiService ipApiService;
-	private final CountryApiClient countryApiClient;
+	private final CountryApiService countryApiService;
 	private final ExchangeRateApiClient exchangeRateApiClient;
 	private final StatsProducer statsProducer;
 
 	public CountryService(
 		IpApiService ipApiService,
-		@RestClient CountryApiClient countryApiClient,
+		CountryApiService countryApiService,
 		@RestClient ExchangeRateApiClient exchangeRateApiClient,
 		StatsProducer statsProducer
 	) {
 		this.ipApiService = ipApiService;
-		this.countryApiClient = countryApiClient;
+		this.countryApiService = countryApiService;
 		this.exchangeRateApiClient = exchangeRateApiClient;
 		this.statsProducer = statsProducer;
 	}
@@ -81,8 +80,7 @@ public class CountryService {
 		return
 			Uni.createFrom().item(countryName)
 				.invoke(it -> Log.infof("Start. Call Country Api Service. Country Name: %s", it))
-				.flatMap(this.countryApiClient::getByName)
-				.map(countryApiDto -> countryApiDto.countriesData().values().stream().findFirst().orElseThrow(() -> new NotFoundException("1", null)))
+				.flatMap(this.countryApiService::getByName)
 				.invoke(countryData -> Log.infof("End. Call Country Api Service. Response body: %s", countryData));
 	}
 
@@ -107,20 +105,23 @@ public class CountryService {
 			countryData.name(),
 			countryData.alpha2Code(),
 			countryData.alpha3Code(),
-			countryData.languages().values().stream().toList(),
+			countryData.languages() != null ? countryData.languages().values().stream().toList() : null,
 			times,
 			distanceToBuenosAires,
 			currencies
 		);
 	}
 
-	private List<Currency> mapToResponseCurrencies(List<String> currencies, ExchangeRateApiDto usdExchangeRates) {
+	private List<Currency> mapToResponseCurrencies(List<String> currencies, ExchangeRateApiDto usdPrices) {
 		return
 			currencies
 				.stream()
 				.map(it -> {
-					BigDecimal currecyExchangeRateForUsd = usdExchangeRates.getRate(it);
-					return new Currency(it, ONE.divide(currecyExchangeRateForUsd, RoundingMode.HALF_UP));
+					BigDecimal usdPriceForCurrency = usdPrices.getRate(it);
+					if(usdPriceForCurrency == null) {
+						return new Currency(it, null);
+					}
+					return new Currency(it, ONE.divide(usdPriceForCurrency, RoundingMode.HALF_UP));
 				})
 				.collect(Collectors.toList());
 	}

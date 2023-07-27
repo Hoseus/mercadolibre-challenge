@@ -13,7 +13,6 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @RegisterRestClient(configKey = "exchangerate-api")
 public interface ExchangeRateApiClient {
-	// Cache every 1 hour
 	@GET
 	@Path("/latest/{base}")
 	@CacheResult(cacheName = "exchangerate-api-cache")

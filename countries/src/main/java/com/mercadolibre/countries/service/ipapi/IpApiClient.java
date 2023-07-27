@@ -10,8 +10,6 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @RegisterRestClient(configKey = "ip-api")
 @ClientQueryParam(name = "access_key", value = "${countries.ip-api.api-key}")
 public interface IpApiClient {
-
-	// Cache 30 min
 	@GET
 	@Path("/{ip}")
 	Uni<IpApiDto> get(@PathParam("ip") String ip);

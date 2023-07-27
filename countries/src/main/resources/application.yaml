@@ -24,6 +24,14 @@ quarkus:
       url: vertx-reactive:postgresql://localhost:5432/country
   redis:
     hosts: redis://localhost:6379
+  cache:
+    redis:
+      ip-api-cache:
+        ttl: 24h
+      country-api:
+        ttl: 6h
+      exchangerate-api-cache:
+        ttl: 5m
 
 kafka:
   bootstrap:
@@ -40,4 +48,4 @@ countries:
   ip-api:
     api-key: "f9a44f7db524059d9e4e741eb97cbef6"
   country-api:
-    api-key: "private"
+    api-key: "HCYQ7khBNys1ujGMcj9pA5BXFIOpfH4HJoXrnsGe"

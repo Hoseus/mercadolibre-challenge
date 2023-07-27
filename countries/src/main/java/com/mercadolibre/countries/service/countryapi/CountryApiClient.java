@@ -2,7 +2,6 @@ package com.mercadolibre.countries.service.countryapi;
 
 import com.mercadolibre.countries.exception.NotFoundException;
 import com.mercadolibre.countries.exception.UnexpectedException;
-import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheResult;
 import io.quarkus.logging.Log;
 import io.quarkus.rest.client.reactive.ClientExceptionMapper;
@@ -11,7 +10,6 @@ import io.quarkus.rest.client.reactive.ClientQueryParams;
 import io.smallrye.mutiny.Uni;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -20,11 +18,10 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 	@ClientQueryParam(name = "apikey", value = "${countries.country-api.api-key}"),
 })
 public interface CountryApiClient {
-	// Cache every 8 hours
 	@GET
-	@Path("/name/{name}")
+	@Path("/all")
 	@CacheResult(cacheName = "country-api-cache")
-	Uni<CountryApiDto> getByName(@PathParam("name") @CacheKey String name);
+	Uni<CountryApiDto> getAll();
 
 	@ClientExceptionMapper
 	static RuntimeException toException(Response response) {
